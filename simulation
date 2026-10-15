@@ -1,0 +1,736 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Preclinical Development Simulation</title>
+<style>
+:root{--red:#c8102e;--ink:#151515;--muted:#666;--line:#ddd;--soft:#f5f5f5;--softred:#fff3f5;--warn:#8b6500}
+*{box-sizing:border-box} body{margin:0;font-family:Arial,Helvetica,sans-serif;color:var(--ink);background:#fff}.topbar,.footer{height:8px;background:var(--red)}
+header{max-width:1100px;margin:auto;padding:24px 22px 16px;display:flex;justify-content:space-between;gap:20px;border-bottom:1px solid var(--line)}
+.brand{font-size:13px;font-weight:800;letter-spacing:.08em;color:var(--red)} h1{font-size:clamp(30px,5vw,50px);line-height:1;margin:8px 0}.subtitle{font-size:18px;color:var(--muted);max-width:760px;line-height:1.45}
+.credits{min-width:155px;border:2px solid var(--red);border-radius:14px;padding:12px;text-align:center}.credits .n{font-size:38px;font-weight:800;color:var(--red)}
+main{max-width:1100px;margin:auto;padding:28px 22px 70px}.panel{border:1px solid var(--line);border-radius:18px;padding:24px;box-shadow:0 4px 18px rgba(0,0,0,.04);margin-bottom:20px}.hero{background:linear-gradient(#fff,#fff8f9);border-color:#efc4cd}
+h2{font-size:28px;margin:0 0 12px} h3{margin:0 0 8px} p{line-height:1.55}.facts,.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.fact{background:var(--soft);padding:13px;border-radius:12px}.fact b{display:block;margin-bottom:4px}
+.choice{border:1px solid #ccc;border-radius:15px;padding:18px;cursor:pointer;background:#fff;transition:.15s}.choice:hover{border-color:#888;transform:translateY(-1px);box-shadow:0 6px 16px rgba(0,0,0,.06)}.choice.selected{border:3px solid var(--red);background:#fff8f9;box-shadow:0 5px 16px rgba(200,16,46,.09);position:relative}.choice.selected:after{content:"Selected";position:absolute;top:10px;right:10px;background:var(--red);color:#fff;border-radius:999px;padding:4px 8px;font-size:12px;font-weight:700}.choice.disabled{opacity:.42;pointer-events:none}.cost{display:inline-block;margin-top:8px;padding:4px 8px;border-radius:999px;background:var(--softred);color:var(--red);font-weight:700;font-size:13px}.tag{display:inline-block;margin-top:8px;padding:4px 8px;border-radius:999px;background:#fff3d6;color:#8b6500;font-weight:700;font-size:12px}
+.result{margin-top:16px;border-left:5px solid var(--red);background:#fafafa;padding:18px;border-radius:10px}
+.interpretPrompt{margin-top:16px;padding-top:14px;border-top:1px solid var(--line);font-size:14px;color:var(--muted)}
+.interpretBtn{margin-top:10px;background:#fff;color:var(--red);border:1px solid var(--red)}
+.interpretBtn:hover{background:var(--softred)}
+.interpretationBox{margin-top:12px;padding:14px 16px;border-radius:12px;background:#fff6e5;border:1px solid #efd492}
+.interpretationBox p{margin:0 0 9px}.interpretationBox p:last-child{margin-bottom:0}.callout{margin-top:14px;padding:14px 16px;border-radius:12px;background:#fff6e5;border:1px solid #efd492}
+table{width:100%;border-collapse:collapse;margin-top:10px} th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left} th{font-size:12px;text-transform:uppercase;color:var(--muted)}
+button{border:0;border-radius:10px;padding:11px 16px;font-weight:700;font-size:15px;cursor:pointer}.primary{background:var(--red);color:#fff}.secondary{background:#eee}.danger{background:#fff1f2;color:var(--red);border:1px solid #f1c6cc}.toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-top:18px}
+    .roundSelection{margin-top:14px;padding:12px 14px;border:1px solid var(--line);border-radius:12px;background:#fafafa;color:var(--muted)}
+    .roundSelection strong{color:var(--ink)}
+    .saveNote{margin-top:8px;font-size:14px;color:var(--warn)}.hidden{display:none!important}
+.progressWrap{max-width:1100px;margin:12px auto 0;padding:0 22px}.progress{height:8px;background:#eee;border-radius:999px;overflow:hidden}.bar{height:100%;background:var(--red);width:0}.stepLabel{font-size:13px;color:var(--muted);margin-top:6px}
+.bigDecision{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}.decision{border:2px solid var(--line);border-radius:16px;padding:22px;text-align:center;cursor:pointer}.decision:hover{border-color:var(--red)}.decision strong{display:block;font-size:25px;margin-bottom:6px}textarea{width:100%;min-height:90px;border:1px solid #bbb;border-radius:10px;padding:10px;font:inherit;margin:7px 0 14px}.summaryItem{padding:11px 0;border-bottom:1px solid var(--line)}
+.dots{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}.dot{width:12px;height:12px;border-radius:50%;background:var(--red)}.dot.used{background:#ddd}.reviewBtn{position:fixed;right:18px;bottom:24px;z-index:20;background:#fff;color:var(--red);border:2px solid var(--red);box-shadow:0 4px 14px rgba(0,0,0,.12)}.reviewPanel{position:fixed;top:0;right:-430px;width:min(430px,92vw);height:100vh;background:#fff;z-index:30;box-shadow:-8px 0 28px rgba(0,0,0,.16);transition:.2s ease;overflow:auto;padding:24px}.reviewPanel.open{right:0}.reviewOverlay{position:fixed;inset:0;background:rgba(0,0,0,.22);z-index:25;display:none}.reviewOverlay.open{display:block}.historyCard{border:1px solid var(--line);border-radius:12px;padding:14px;margin:10px 0;background:#fafafa}.historyCard h4{margin:0 0 6px}.historyMeta{font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--red);margin-bottom:5px}.historyCard p{margin:0;line-height:1.45}.historyEmpty{color:var(--muted);font-style:italic}.footer{position:fixed;left:0;right:0;bottom:0}
+@media(max-width:760px){header{display:block}.credits{margin-top:16px}.facts,.grid,.bigDecision{grid-template-columns:1fr}}
+
+
+
+</style>
+</head>
+<body>
+<div class="topbar"></div>
+<header><div><div class="brand">PRECLINICAL DEVELOPMENT SIMULATION</div><h1>Build the strongest preclinical case</h1><div class="subtitle">You are the development team for a promising biologic. You have 10 credits, four experimental rounds, and more questions than you can afford to answer.</div></div><div class="credits"><div>Credits remaining</div><div class="n" id="credits">10</div><div class="dots" id="dots"></div></div></header>
+<div class="progressWrap"><div class="progress"><div class="bar" id="bar"></div></div><div class="stepLabel" id="stepLabel">Candidate dossier</div></div>
+<main>
+<section id="intro" class="panel hero">
+  <div class="brand">PROGRAMME BRIEF</div>
+  <h2>Candidate dossier: NBX-101</h2>
+  <p><strong>NBX-101</strong> is a human IgG1 antibody that blocks the cell-surface receptor <strong>XR-17</strong>. XR-17 amplifies inflammatory-cell activation and is genetically and clinically associated with a chronic inflammatory disease.</p>
+  <div class="facts">
+    <div class="fact"><b>Mechanism</b>Blocks ligand-driven XR-17 signalling</div>
+    <div class="fact"><b>Discovery pharmacology</b>IC50 = 1.5 nM in a human reporter-cell assay</div>
+    <div class="fact"><b>Intended route</b>Subcutaneous administration</div>
+    <div class="fact"><b>Development stage</b>Lead candidate entering preclinical development</div>
+  </div>
+  <p>Discovery has shown that NBX-101 binds purified human XR-17 with high affinity and inhibits the engineered reporter assay. The project team now wants to know whether the molecule is ready to progress toward a first-in-human package.</p>
+  <div class="callout"><strong>Your constraint:</strong> you have <strong>10 development credits</strong>. Studies have different costs. You may run a maximum of <strong>2 studies per round</strong>, and unused credits carry forward. Your goal is not to generate the most data — it is to reduce the uncertainties that matter most for a development decision.</div>
+  <div class="toolbar"><button class="primary" onclick="goRound1()">Start the programme</button></div>
+</section>
+
+<section id="round1" class="hidden">
+  <div class="panel">
+    <div class="brand">ROUND 1 — DISCOVERY → TRANSLATION</div>
+    <h2>What do you need to establish first?</h2>
+    <p>You have a potent discovery candidate, but very little translational evidence. Select <strong>up to 2 studies</strong>. You can change your selections before confirming.</p>
+    <div class="grid" id="r1choices"></div>
+    <div class="roundSelection" id="r1selectionSummary">No studies selected yet. Unused credits carry forward.</div>
+    <div class="toolbar"><button class="primary" id="r1confirm" disabled onclick="confirmStudy('r1')">Confirm selected studies</button></div>
+    <div id="r1result"></div>
+    <div class="toolbar hidden" id="r1continue"><button class="primary" onclick="goRound2()">Continue to Round 2</button></div>
+  </div>
+</section>
+
+<section id="round2" class="hidden">
+  <div class="panel">
+    <div class="brand">ROUND 2 — BUILD THE TRANSLATIONAL PICTURE</div>
+    <h2>Which uncertainties are worth resolving next?</h2>
+    <p>Use what you learned in Round 1. Select <strong>up to 2 studies</strong>. Remember that expensive studies are not automatically the most informative ones.</p>
+    <div class="grid" id="r2choices"></div>
+    <div class="roundSelection" id="r2selectionSummary">No studies selected yet. Unused credits carry forward.</div>
+    <div class="toolbar"><button class="primary" id="r2confirm" disabled onclick="confirmStudy('r2')">Confirm selected studies</button></div>
+    <div id="r2result"></div>
+    <div class="toolbar hidden" id="r2continue"><button class="primary" onclick="goUpdate()">Continue</button></div>
+  </div>
+</section>
+
+<section id="update" class="hidden">
+  <div class="panel hero">
+    <div class="brand">NEW CLINICAL INFORMATION</div>
+    <h2>The clinical requirements become more concrete</h2>
+    <p>The clinical team has reviewed biomarker data from patients. Their current working assumption is that meaningful efficacy will require <strong>sustained ≥80% XR-17 receptor occupancy</strong>.</p>
+    <div class="facts">
+      <div class="fact"><b>Desired regimen</b>Subcutaneous dosing every 2 weeks or less often</div>
+      <div class="fact"><b>Preferred injection burden</b>≤2 mL per injection</div>
+    </div>
+    
+    <div class="callout"><strong>Think before spending:</strong> which missing piece now has the greatest potential to change your development decision?</div>
+    <div class="toolbar"><button class="primary" onclick="goRound3()">Continue to Round 3</button></div>
+  </div>
+</section>
+
+<section id="round3" class="hidden">
+  <div class="panel">
+    <div class="brand">ROUND 3 — INTEGRATE EXPOSURE, SAFETY AND FEASIBILITY</div>
+    <h2>How does the candidate look against the clinical goal?</h2>
+    <p>Select <strong>up to 2 studies</strong>. At this stage, studies that connect pharmacology, exposure, safety and feasibility may be especially valuable.</p>
+    <div class="grid" id="r3choices"></div>
+    <div class="roundSelection" id="r3selectionSummary">No studies selected yet. Unused credits carry forward.</div>
+    <div class="toolbar"><button class="primary" id="r3confirm" disabled onclick="confirmStudy('r3')">Confirm selected studies</button></div>
+    <div id="r3result"></div>
+    <div class="toolbar hidden" id="r3continue"><button class="primary" onclick="goSurprise()">Continue</button></div>
+  </div>
+</section>
+
+<section id="surprise" class="hidden">
+  <div class="panel hero">
+    <div class="brand">PROGRAMME SURPRISE</div>
+    <h2>New patient data change an important assumption</h2>
+    <p>New biopsy data from patients with severe disease show approximately <strong>2× higher XR-17 surface abundance</strong> than the samples used for the original pharmacology model. Receptor turnover also appears faster.</p>
+    <p>The modelling team estimates that maintaining the same receptor coverage could require approximately <strong>1.5–1.7× more systemic exposure</strong> than previously assumed.</p>
+    <div class="callout"><strong>What changed?</strong> Your earlier data are still valid, but the exposure needed for efficacy may be higher. Reconsider both dose feasibility and safety margin before the final decision.</div>
+    <div class="toolbar"><button class="primary" onclick="goRound4()">Enter the final experimental round</button></div>
+  </div>
+</section>
+
+<section id="round4" class="hidden">
+  <div class="panel">
+    <div class="brand">ROUND 4 — FINAL CHANCE TO REDUCE UNCERTAINTY</div>
+    <h2>What do you still need before programme review?</h2>
+    <p>Select <strong>up to 2 studies</strong>. You do not have to spend every remaining credit. Prioritize the unresolved uncertainty most likely to change your decision.</p>
+    <div class="grid" id="r4choices"></div>
+    <div class="roundSelection" id="r4selectionSummary">No studies selected yet. Unused credits carry forward.</div>
+    <div class="toolbar"><button class="primary" id="r4confirm" disabled onclick="confirmStudy('r4')">Confirm selected studies</button></div>
+    <div id="r4result"></div>
+    <div class="toolbar hidden" id="r4continue"><button class="primary" onclick="goDecision()">Go to programme review</button></div>
+  </div>
+</section>
+
+<section id="decision" class="hidden">
+  <div class="panel">
+    <div class="brand">PROGRAMME REVIEW</div>
+    <h2>Your evidence package</h2>
+    <p>This is the evidence your team chose to generate. Important unanswered questions are part of the decision too.</p>
+    <div id="evidenceSummary"></div>
+  </div>
+  <div class="panel">
+    <h2>What should happen to NBX-101?</h2>
+    <p>Choose the decision that is most defensible from <em>your</em> evidence package. Different teams may reasonably reach different conclusions because they generated different evidence.</p>
+    <div class="bigDecision">
+      <div class="decision" onclick="chooseDecision('GO')"><strong>GO</strong>Progress toward first-in-human preparation with the current candidate.</div>
+      <div class="decision" onclick="chooseDecision('OPTIMIZE')"><strong>OPTIMIZE</strong>The candidate remains promising, but a defined issue should be resolved before FIH.</div>
+      <div class="decision" onclick="chooseDecision('NO-GO')"><strong>NO-GO</strong>Current evidence does not justify continued development of this candidate.</div>
+    </div>
+    <div id="reflection" class="hidden" style="margin-top:22px">
+      <h3 id="chosenDecision"></h3>
+      <label><strong>1. Which two findings had the greatest influence on your decision?</strong></label>
+      <textarea id="q1" placeholder="Use evidence from your own programme..."></textarea>
+      <label><strong>2. What is the most important uncertainty that remains?</strong></label>
+      <textarea id="q2" placeholder="What do you still not know?"></textarea>
+      <label><strong>3. If you had additional credits, what would you do next — and why?</strong></label>
+      <textarea id="q3" placeholder="What would you prioritize, and why?"></textarea>
+      <div class="toolbar"><button class="primary" onclick="finish()">Finish and show discussion summary</button></div>
+    </div>
+  </div>
+</section>
+
+<section id="final" class="hidden">
+  <div class="panel hero">
+    <div class="brand">TEAM DEBRIEF</div>
+    <h2>Programme review complete</h2>
+    <p id="finalDecisionText"></p>
+    <div id="finalSummary"></div><div id="lectureFeedbackSummary"></div>
+    <div class="callout"><strong>Discuss with the class:</strong> Which study had the highest information value? Which expensive study could have been misleading if ordered too early? Did two teams reach different but defensible decisions?</div>
+    
+    <div class="panel" style="margin-top:20px">
+      <div class="brand">LECTURE FEEDBACK</div>
+      <h2>What worked well / what could be improved</h2>
+      <p>Please give brief feedback on the lecture and exercise. For every thing that worked well, I would like you to identify two things that could be improved. When you are ready, open the Microsoft Form below. Your programme result, reflections and feedback will be pre-filled so you only need to review and submit.</p>
+      <label><strong>What worked well?</strong></label>
+      <textarea id="fbGood"></textarea>
+      <label><strong>What could be improved?</strong></label>
+      <textarea id="fbImprove"></textarea>
+      <div class="toolbar">
+        <button class="primary" id="submitAllBtn" onclick="openMicrosoftForm()">Open Microsoft Form to submit</button><div style="width:100%;font-size:13px;color:var(--muted);margin-top:8px">Your answers will be pre-filled in Microsoft Forms. Please review them there and press Submit.</div>
+      </div>
+      <div id="feedbackSaved" class="hidden callout"><strong>Microsoft Forms opened.</strong> Please review the pre-filled answers and press <strong>Submit</strong> in the form.</div><div id="feedbackError" class="hidden callout"><strong>The Microsoft Form is not connected yet.</strong> The lecturer needs to add the pre-filled Microsoft Forms link to this website.</div>
+    </div>
+
+    <div class="toolbar">
+      
+      <button class="danger" onclick="resetSim()">Reset simulation</button>
+    </div>
+  </div>
+</section>
+</main><button class="reviewBtn" onclick="openReview()">Review previous information</button>
+<div class="reviewOverlay" id="reviewOverlay" onclick="closeReview()"></div>
+<aside class="reviewPanel" id="reviewPanel">
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:12px">
+    <h2 style="margin:0">Programme evidence</h2>
+    <button class="secondary" onclick="closeReview()">Close</button>
+  </div>
+  <p style="color:var(--muted)">Use this notebook to review the results your team has generated or received. Interpretations appear here only after you choose to reveal them.</p>
+  <div id="historyList"></div>
+</aside>
+<div class="footer"></div>
+<script>
+const studies={
+  cross:{
+    title:'Species cross-reactivity panel', cost:1,
+    desc:'Compare XR-17 binding and functional blockade across potential preclinical species.',
+    result:`<h3>Species cross-reactivity</h3>
+      <table><tr><th>Species</th><th>Binding</th><th>Functional blockade</th></tr>
+      <tr><td>Human</td><td>Strong</td><td>Yes</td></tr>
+      <tr><td>Mouse</td><td>Not detected</td><td>No</td></tr>
+      <tr><td>Rat</td><td>Weak</td><td>Minimal</td></tr>
+      <tr><td>Monkey</td><td>Comparable to human</td><td>Comparable to human</td></tr></table>
+`
+  },
+  primary:{
+    title:'Human primary-cell pharmacology', cost:1,
+    desc:'Confirm pharmacological activity in primary human inflammatory cells.',
+    result:`<h3>Primary human-cell pharmacology</h3>
+      <p>NBX-101 inhibits ligand-driven XR-17 signalling in primary cells from 8 donors.</p>
+      <table><tr><th>Readout</th><th>Result</th></tr>
+      <tr><td>Median IC50</td><td>2.3 nM</td></tr>
+      <tr><td>Maximum pathway inhibition</td><td>88%</td></tr>
+      <tr><td>Donor range</td><td>1.1–5.8 nM</td></tr></table>
+`
+  },
+  targetexp:{
+    title:'Human target-expression profiling', cost:1,
+    desc:'Map XR-17 expression in disease-relevant and healthy human tissues.',
+    result:`<h3>Human target-expression profiling</h3>
+      <p>XR-17 is highly expressed on the inflammatory-cell population implicated in disease.</p>
+      <p>Lower but reproducible expression is also detected on <strong>platelets and megakaryocytes</strong>. Expression is low or absent in major parenchymal organs examined.</p>
+`
+  },
+  mouse:{
+    title:'Mouse disease-model efficacy', cost:2,
+    desc:'Test NBX-101 in an established inflammatory mouse disease model.',
+    result:`<h3>Mouse disease-model efficacy</h3>
+      <p>NBX-101 reaches measurable systemic exposure but produces <strong>no improvement</strong> in the disease endpoint.</p>
+`
+  },
+  pk:{
+    title:'Monkey PK + SC bioavailability', cost:2,
+    desc:'Characterize exposure after IV and SC dosing, including half-life and SC bioavailability.',
+    result:`<h3>Monkey pharmacokinetics</h3>
+      <table><tr><th>Parameter</th><th>Result</th></tr>
+      <tr><td>Terminal half-life</td><td>11.5 days</td></tr>
+      <tr><td>SC bioavailability</td><td>72%</td></tr>
+      <tr><td>Time to SC Cmax</td><td>~2 days</td></tr>
+      <tr><td>Single-dose exposure</td><td>Approximately dose proportional</td></tr></table>
+`
+  },
+  formulation:{
+    title:'High-concentration formulation screen', cost:1,
+    desc:'Determine the practical concentration range for an SC formulation.',
+    result:`<h3>Formulation screen</h3>
+      <table><tr><th>Concentration</th><th>Observation</th></tr>
+      <tr><td>≤100 mg/mL</td><td>Stable; acceptable viscosity</td></tr>
+      <tr><td>120 mg/mL</td><td>Viscosity increases substantially</td></tr>
+      <tr><td>150 mg/mL</td><td>Aggregation increases during stress testing</td></tr></table>`
+  },
+  exvivo:{
+    title:'Human ex-vivo safety pharmacology', cost:2,
+    desc:'Assess intended and unintended effects in primary human blood-cell systems.',
+    result:`<h3>Human ex-vivo pharmacology</h3>
+      <p>NBX-101 strongly inhibits disease-relevant inflammatory signalling at concentrations consistent with the primary-cell potency data.</p>
+      <p>At substantially higher concentrations, platelet activation responses decrease by 20–30% in several donors.</p>
+`
+  },
+  tox:{
+    title:'4-week monkey repeat-dose toxicology + TK', cost:3,
+    desc:'Assess repeat-dose safety and relate findings to measured systemic exposure.',
+    result:`<h3>Repeat-dose toxicology and toxicokinetics</h3>
+      <table><tr><th>Dose</th><th>Approx. exposure vs initial projected human exposure</th><th>Finding</th></tr>
+      <tr><td>10 mg/kg</td><td>~2×</td><td>No adverse findings</td></tr>
+      <tr><td>30 mg/kg</td><td>~6×</td><td>Mild, reversible platelet decrease</td></tr>
+      <tr><td>50 mg/kg</td><td>~10×</td><td>Marked thrombocytopenia</td></tr></table>
+      <p>No major liver, kidney or cardiovascular pathology is observed. The <strong>No Observed Adverse Effects Level is 10 mg/kg</strong> in this study.</p>`
+  },
+  model:{
+    title:'Initial human PK/PD dose modelling', cost:1,
+    desc:'Integrate pharmacology and PK to estimate a human dose capable of sustaining target coverage.',
+    result:`<h3>Initial human dose/exposure model</h3>
+      <p>Using the current disease-biology assumptions, the model predicts that approximately <strong>220–260 mg SC every 2 weeks</strong> could maintain ≥80% XR-17 occupancy.</p>
+      <p>At the current practical formulation concentration of 100 mg/mL, this corresponds to roughly <strong>2.2–2.6 mL</strong> per dose.</p>
+`
+  },
+  ada:{
+    title:'ADA assessment from the repeat-dose study', cost:1,
+    desc:'Determine whether anti-drug antibodies altered exposure or complicated interpretation of the repeat-dose study.',
+    result:`<h3>Anti-drug antibody assessment</h3>
+      <p>ADA is detected in <strong>3 of 12</strong> high-dose animals after repeated exposure.</p>
+      <p>One ADA-positive animal shows accelerated clearance, while the other two maintain expected exposure. Platelet changes do not correlate with ADA status.</p>
+`
+  },
+  formopt:{
+    title:'Formulation optimization', cost:2,
+    desc:'Increase formulation concentration while maintaining acceptable viscosity, aggregation and activity.',
+    result:`<h3>Optimized formulation</h3>
+      <p>A revised formulation remains stable and syringeable at <strong>150 mg/mL</strong> after accelerated stress testing.</p>
+      <p>At 150 mg/mL, a 250 mg dose would require approximately 1.7 mL, while a 375 mg dose would require approximately 2.5 mL.</p>
+`
+  },
+  updatedmodel:{
+    title:'Updated dose/exposure modelling', cost:1,
+    desc:'Recalculate the human dose using the new severe-disease target abundance and turnover data.',
+    result:`<h3>Updated human dose/exposure model</h3>
+      <p>After incorporating the new patient data, maintaining ≥80% receptor occupancy is predicted to require approximately <strong>340–400 mg SC every 2 weeks</strong>.</p>
+      <p>This is ~1.6× higher than the original estimate.</p>
+`
+  },
+  delivery:{
+    title:'SC delivery feasibility assessment', cost:1,
+    desc:'Assess whether the projected dose can be delivered with a practical SC administration strategy.',
+    result:`<h3>SC delivery feasibility</h3>
+      <p>The device and formulation team considers approximately <strong>2 mL per injection</strong> a practical target for this programme.</p>
+      <p>Two injections given during the same visit are considered technically feasible but increase treatment burden. A single injection above approximately 2.5 mL is considered undesirable.</p>
+`
+  }
+};
+
+const studyInterpretations={
+  cross:`<p><strong>Interpretation:</strong> Mouse and rat are poor models for on-target pharmacology, whereas monkeys are a plausible pharmacologically relevant species.</p>`,
+  primary:`<p><strong>Interpretation:</strong> Activity is retained in a more physiologically relevant human system, although donor variability is evident.</p>`,
+  targetexp:`<p><strong>Interpretation:</strong> The expression pattern supports the intended disease biology but also identifies a potential on-target/off-tissue platelet liability.</p>`,
+  mouse:`<p><strong>Interpretation:</strong> By itself, the negative efficacy result cannot distinguish between failure of the therapeutic concept and lack of pharmacological activity against mouse XR-17.</p>`,
+  pk:`<p><strong>Interpretation:</strong> The PK profile is compatible with infrequent SC dosing, but PK alone does not establish the exposure or dose required for efficacy.</p>`,
+  formulation:`<p><strong>Interpretation:</strong> Based on these data, approximately 100 mg/mL is the current practical concentration limit. Whether that is sufficient depends on the eventual human dose requirement.</p>`,
+  exvivo:`<p><strong>Interpretation:</strong> The platelet effect is consistent with XR-17 expression on platelets and creates a plausible mechanistic safety concern, although its clinical relevance is not yet known.</p>`,
+  tox:`<p><strong>Interpretation:</strong> The findings show an exposure-related platelet toxicity, with a No Observed Adverse Effects Level of 10 mg/kg. Its relevance to humans depends on species relevance and the exposure needed for efficacy.</p>`,
+  model:`<p><strong>Interpretation:</strong> The projected exposure appears achievable, but the dose may already challenge the preferred single-injection volume.</p>`,
+  ada:`<p><strong>Interpretation:</strong> ADA explains one PK outlier but does not explain the platelet toxicity. Animal ADA incidence should not be used as a direct prediction of human immunogenicity.</p>`,
+  formopt:`<p><strong>Interpretation:</strong> The optimized formulation provides substantially more flexibility for SC delivery, although very high doses may still exceed the preferred single-injection volume.</p>`,
+  updatedmodel:`<p><strong>Interpretation:</strong> The revised efficacy requirement is substantially less favourable: the projected dose is higher, the SC presentation becomes more demanding, and any existing safety margin becomes narrower.</p>`,
+  delivery:`<p><strong>Interpretation:</strong> A higher dose does not automatically end the programme, but administration strategy and treatment burden now become part of the product decision.</p>`
+};
+
+const notebookSummaries={
+  cross:"Human XR-17 shows strong binding and functional blockade. Mouse binding is not detected and functional blockade is absent. Rat binding is weak with minimal functional activity. Monkey binding and functional blockade are comparable to human.",
+  primary:"NBX-101 inhibits ligand-driven XR-17 signalling in primary cells from 8 donors. The median IC50 is 2.3 nM, maximum pathway inhibition is 88%, and the donor range is 1.1–5.8 nM.",
+  targetexp:"XR-17 is highly expressed on the inflammatory-cell population implicated in disease. Lower but reproducible expression is also detected on platelets and platelet-producing bone marrow cells, while expression is low or absent in the major parenchymal organs examined.",
+  mouse:"NBX-101 reaches measurable systemic exposure but produces no improvement in the mouse disease endpoint.",
+  pk:"The terminal half-life is 11.5 days, SC bioavailability is 72%, and time to SC Cmax is approximately 2 days. Single-dose exposure is approximately dose proportional.",
+  formulation:"NBX-101 is stable with acceptable viscosity at concentrations up to approximately 100 mg/mL. At 120 mg/mL, viscosity increases substantially, and at 150 mg/mL, aggregation increases during stress testing.",
+  exvivo:"NBX-101 strongly inhibits disease-relevant inflammatory signalling at concentrations consistent with the primary-cell potency data. At substantially higher concentrations, platelet activation responses decrease by 20–30% in several donors.",
+  tox:"At 10 mg/kg, corresponding to approximately 2× the initial projected human exposure, no adverse findings are observed. At 30 mg/kg, approximately 6× projected human exposure, a mild reversible platelet decrease occurs. At 50 mg/kg, approximately 10× projected human exposure, marked thrombocytopenia occurs. No major liver, kidney or cardiovascular pathology is observed. The No Observed Adverse Effects Level is 10 mg/kg.",
+  model:"Using the current disease-biology assumptions, the model predicts that approximately 220–260 mg SC every 2 weeks could maintain at least 80% XR-17 occupancy. At 100 mg/mL, this corresponds to approximately 2.2–2.6 mL per dose.",
+  ada:"ADA is detected in 3 of 12 high-dose animals after repeated exposure. One ADA-positive animal shows accelerated clearance, while the other two maintain expected exposure. Platelet changes do not correlate with ADA status.",
+  formopt:"A revised formulation remains stable and syringeable at 150 mg/mL after accelerated stress testing. At 150 mg/mL, a 250 mg dose would require approximately 1.7 mL, while a 375 mg dose would require approximately 2.5 mL.",
+  updatedmodel:"After incorporating the new patient data, maintaining at least 80% receptor occupancy is predicted to require approximately 340–400 mg SC every 2 weeks. This is around 1.6× higher than the original estimate.",
+  delivery:"The device and formulation team considers approximately 2 mL per injection a practical target. Two injections during the same visit are technically feasible but increase treatment burden. A single injection above approximately 2.5 mL is considered undesirable."
+};
+
+let state={
+  credits:10,
+  selected:[],
+  decision:null,
+  surpriseSeen:false,
+  pending:{r1:[],r2:[],r3:[],r4:[]},
+  history:[{
+    type:"Starting information",
+    title:"Candidate dossier",
+    body:"NBX-101 is a human IgG1 antibody that blocks XR-17. Discovery IC50 is 1.5 nM in a human reporter assay. The intended route is subcutaneous administration."
+  }]
+};
+
+function renderCredits(){
+  document.getElementById('credits').textContent=state.credits;
+  const dots=document.getElementById('dots'); dots.innerHTML='';
+  for(let i=0;i<10;i++){
+    const d=document.createElement('span');
+    d.className='dot '+(i>=state.credits?'used':'');
+    dots.appendChild(d);
+  }
+}
+function show(id){
+  document.querySelectorAll('main > section').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function progress(p,label){
+  document.getElementById('bar').style.width=p+'%';
+  document.getElementById('stepLabel').textContent=label;
+}
+function roundKeys(round){
+  if(round==='r1') return ['primary','cross','targetexp','mouse','formulation'];
+  if(round==='r2') return ['pk','exvivo','targetexp','mouse','formulation','primary','cross'];
+  if(round==='r3') return ['tox','model','pk','exvivo','formulation','targetexp','cross'];
+  return ['updatedmodel','formopt','delivery','ada','tox','exvivo','targetexp'];
+}
+function roundMax(){ return 2; }
+function pendingCost(round){
+  return state.pending[round].reduce((sum,key)=>sum+studies[key].cost,0);
+}
+function choiceCard(key,round){
+  const s=studies[key];
+  const alreadyDone=state.selected.includes(key);
+  const isSelected=state.pending[round].includes(key);
+  const currentCost=pendingCost(round);
+  const unaffordable=!isSelected && (currentCost+s.cost>state.credits);
+  const maxed=!isSelected && state.pending[round].length>=2;
+  const disabled=alreadyDone || unaffordable || maxed;
+  return `<div class="choice ${disabled?'disabled':''} ${isSelected?'selected':''}" ${disabled?'':`onclick="toggleStudy('${key}','${round}')"`}>
+    <h3>${s.title}</h3>
+    <p>${s.desc}</p>
+    <span class="cost">${s.cost} credit${s.cost===1?'':'s'}</span>
+    ${alreadyDone?'<span class="tag">Already performed</span>':''}
+  </div>`;
+}
+function renderRound(round){
+  document.getElementById(round+'choices').innerHTML=roundKeys(round).map(k=>choiceCard(k,round)).join('');
+  const btn=document.getElementById(round+'confirm');
+  const n=state.pending[round].length;
+  const cost=pendingCost(round);
+  btn.disabled=n===0;
+  btn.textContent=n===0?'Confirm selected studies':`Confirm ${n} stud${n===1?'y':'ies'} (${cost} credit${cost===1?'':'s'})`;
+
+  const summary=document.getElementById(round+'selectionSummary');
+  if(n===0){
+    summary.innerHTML='No studies selected yet. <div class="saveNote">You may choose up to 2 studies. Unused credits carry forward.</div>';
+  }else{
+    const names=state.pending[round].map(k=>studies[k].title).join(', ');
+    const left=state.credits-cost;
+    let warning='';
+    if(round!=='r4' && left<=2) warning='<div class="saveNote"><strong>Resource warning:</strong> this leaves very little flexibility for later rounds.</div>';
+    else if(round!=='r4') warning='<div class="saveNote">Unused credits carry forward. You do not need to spend them now.</div>';
+    summary.innerHTML=`<strong>Selected:</strong> ${names}<br><strong>Cost:</strong> ${cost} &nbsp;•&nbsp; <strong>Credits after confirmation:</strong> ${left}${warning}`;
+  }
+}
+function toggleStudy(key,round){
+  if(state.selected.includes(key)) return;
+  const arr=state.pending[round];
+  const i=arr.indexOf(key);
+  if(i>=0){ arr.splice(i,1); }
+  else{
+    if(arr.length>=2) return;
+    if(pendingCost(round)+studies[key].cost>state.credits) return;
+    arr.push(key);
+  }
+  renderRound(round);
+}
+function contextualExtra(key){
+  let x='';
+  if(key==='mouse'){
+    if(state.selected.includes('cross')){
+      x+=`<div class="callout"><strong>Interpretation:</strong> you already know that NBX-101 does not bind mouse XR-17. The negative mouse efficacy result therefore says little about whether the drug could work in humans.</div>`;
+    }else{
+      x+=`<div class="callout"><strong>Interpretation problem:</strong> the study is negative, but you still do not know whether NBX-101 can engage mouse XR-17. The result cannot yet distinguish model failure from drug failure.</div>`;
+    }
+  }
+  if(key==='pk' && !state.selected.includes('cross')){
+    x+=`<div class="callout"><strong>Interpretation:</strong> the PK data are valid, but without cross-reactivity data you have not established whether monkeys are pharmacologically relevant for on-target pharmacology or toxicity.</div>`;
+  }
+  if(key==='tox'){
+    if(state.selected.includes('cross')){
+      x+=`<div class="callout"><strong>Interpretation:</strong> your cross-reactivity data support monkeys as a pharmacologically relevant species, strengthening the relevance of the platelet finding.</div>`;
+    }else{
+      x+=`<div class="callout"><strong>Major uncertainty:</strong> you generated a costly safety dataset without first showing that monkeys respond to NBX-101 in a human-like way.</div>`;
+    }
+    if(state.selected.includes('targetexp')||state.selected.includes('exvivo')){
+      x+=`<div class="callout"><strong>Mechanistic link:</strong> your earlier human data implicated platelet XR-17. The thrombocytopenia is therefore consistent with an on-target/off-tissue effect.</div>`;
+    }
+  }
+  if(key==='model'){
+    if(!state.selected.includes('pk')) x+=`<div class="callout"><strong>Uncertainty:</strong> without programme-specific PK data, the human dose estimate relies more heavily on assumed antibody PK.</div>`;
+    if(!state.selected.includes('primary')) x+=`<div class="callout"><strong>Uncertainty:</strong> primary human-cell potency has not been confirmed, so the model still relies heavily on the engineered reporter assay.</div>`;
+  }
+  if(key==='ada' && !state.selected.includes('tox')){
+    x+=`<div class="callout"><strong>Low information value:</strong> ADA data are difficult to interpret in isolation when you have no repeat-dose exposure or safety findings to explain.</div>`;
+  }
+  if(key==='formopt' && !state.selected.includes('formulation')){
+    x+=`<div class="callout"><strong>Strategic note:</strong> you optimized concentration without first defining the baseline formulation limitation. The result is useful, but the sequence is less efficient.</div>`;
+  }
+  if(key==='updatedmodel'){
+    if(!state.selected.includes('pk')) x+=`<div class="callout"><strong>Remaining uncertainty:</strong> the updated dose estimate is less secure because programme-specific PK data are still missing.</div>`;
+    if(state.selected.includes('tox')) x+=`<div class="callout"><strong>Safety-margin consequence:</strong> the predicted efficacious exposure has increased by approximately 1.6×. The earlier approximately 2× exposure margin to the animal No Observed Adverse Effects Level therefore falls to only around 1.2–1.3×.</div>`;
+  }
+  if(key==='delivery'){
+    if(!state.selected.includes('model') && !state.selected.includes('updatedmodel')) x+=`<div class="callout"><strong>Missing input:</strong> delivery feasibility is difficult to judge when the required human dose has not been estimated.</div>`;
+    if(state.selected.includes('formopt')) x+=`<div class="callout"><strong>Integrated view:</strong> the 150 mg/mL formulation gives substantially more flexibility for delivering a high SC dose.</div>`;
+  }
+  return x;
+}
+function confirmStudy(round){
+  const keys=[...state.pending[round]];
+  if(keys.length===0) return;
+  const cost=keys.reduce((sum,k)=>sum+studies[k].cost,0);
+  if(cost>state.credits) return;
+
+  state.credits-=cost;
+  keys.forEach(k=>state.selected.push(k));
+  state.pending[round]=[];
+  renderCredits();
+
+  let resultHtml='';
+  keys.forEach(key=>{
+    const extra=contextualExtra(key);
+    const interpretation=(studyInterpretations[key]||'')+extra;
+    resultHtml+=`<div class="result">
+      ${studies[key].result}
+      <div class="interpretPrompt">Discuss the result with your group before revealing the interpretation.</div>
+      <button class="interpretBtn" id="interp-btn-${round}-${key}" onclick="revealInterpretation('${round}','${key}')">Show interpretation</button>
+      <div class="interpretationBox hidden" id="interp-${round}-${key}">${interpretation}</div>
+    </div>`;
+    state.history.push({type:'Study result',title:studies[key].title,body:notebookSummaries[key]});
+  });
+  document.getElementById(round+'result').innerHTML=resultHtml;
+  document.getElementById(round+'choices').querySelectorAll('.choice').forEach(c=>c.classList.add('disabled'));
+  document.getElementById(round+'confirm').classList.add('hidden');
+
+  const summary=document.getElementById(round+'selectionSummary');
+  summary.innerHTML=`<strong>Round confirmed:</strong> ${keys.length} stud${keys.length===1?'y':'ies'} completed for ${cost} credits. <strong>${state.credits} credits remain.</strong>`;
+  document.getElementById(round+'continue').classList.remove('hidden');
+  renderHistory();
+}
+function revealInterpretation(round,key){
+  const box=document.getElementById(`interp-${round}-${key}`);
+  const btn=document.getElementById(`interp-btn-${round}-${key}`);
+  if(!box || !btn) return;
+
+  box.classList.remove('hidden');
+  btn.disabled=true;
+  btn.textContent='Interpretation revealed';
+
+  const extra=contextualExtra(key);
+  const interpretation=(studyInterpretations[key]||'')+extra;
+  const title=studies[key].title+' — interpretation';
+  const body=stripHtml(interpretation);
+
+  if(body && !state.history.some(h=>h.type==='Interpretation' && h.title===title)){
+    state.history.push({type:'Interpretation',title,body});
+    renderHistory();
+  }
+}
+function stripHtml(str){
+  const d=document.createElement('div'); d.innerHTML=str;
+  return (d.textContent||d.innerText||'').replace(/\s+/g,' ').trim();
+}
+function cleanForNotebook(resultHtml,extraHtml=''){
+  const d=document.createElement('div');
+  d.innerHTML=resultHtml;
+  const heading=d.querySelector('h3');
+  if(heading) heading.remove();
+  let txt=stripHtml(d.innerHTML);
+  if(extraHtml){
+    const extra=stripHtml(extraHtml);
+    if(extra) txt += ' ' + extra;
+  }
+  return txt.replace(/\s+/g,' ').trim();
+}
+function addHistory(type,title,body){
+  if(!state.history.some(h=>h.title===title&&h.body===body)){
+    state.history.push({type,title,body}); renderHistory();
+  }
+}
+function renderHistory(){
+  const el=document.getElementById('historyList');
+  if(!state.history.length){
+    el.innerHTML='<div class="historyEmpty">No information has been added yet.</div>';
+    return;
+  }
+  el.innerHTML=state.history.map(h=>`
+    <div class="historyCard">
+      <div class="historyMeta">${escapeHtml(h.type||'Information')}</div>
+      <h4>${escapeHtml(h.title)}</h4>
+      <p>${escapeHtml(h.body)}</p>
+    </div>`).join('');
+}
+function openReview(){
+  renderHistory();
+  document.getElementById('reviewPanel').classList.add('open');
+  document.getElementById('reviewOverlay').classList.add('open');
+}
+function closeReview(){
+  document.getElementById('reviewPanel').classList.remove('open');
+  document.getElementById('reviewOverlay').classList.remove('open');
+}
+function goRound1(){ show('round1'); progress(12,'Round 1 — establish the foundations'); renderRound('r1'); }
+function goRound2(){ show('round2'); progress(28,'Round 2 — build the translational picture'); renderRound('r2'); }
+function goUpdate(){
+  addHistory('Programme update','New clinical information','Meaningful efficacy is expected to require sustained at least 80% XR-17 receptor occupancy. The preferred regimen is SC every 2 weeks or less often, with a preferred injection volume of no more than 2 mL per injection.');
+  show('update'); progress(42,'New clinical constraints');
+}
+function goRound3(){ show('round3'); progress(57,'Round 3 — integrate exposure, safety and feasibility'); renderRound('r3'); }
+function goSurprise(){
+  state.surpriseSeen=true;
+  addHistory('Programme update','New patient biology','Severe-disease biopsies show approximately 2× higher XR-17 surface abundance and faster receptor turnover. Maintaining the same receptor coverage may therefore require approximately 1.5–1.7× more exposure than previously assumed.');
+  show('surprise'); progress(70,'Patient biology changes the assumptions');
+}
+function goRound4(){ show('round4'); progress(82,'Round 4 — final evidence choices'); renderRound('r4'); }
+function goDecision(){
+  show('decision'); progress(93,'Programme review');
+  let out='<div class="facts">';
+  const categories=[
+    ['Pharmacology', state.selected.some(k=>['primary','exvivo','mouse'].includes(k))],
+    ['Species relevance', state.selected.includes('cross')],
+    ['PK / exposure', state.selected.includes('pk')],
+    ['Safety', state.selected.includes('tox')],
+    ['Developability', state.selected.some(k=>['formulation','formopt','delivery'].includes(k))],
+    ['Dose rationale', state.selected.some(k=>['model','updatedmodel'].includes(k))]
+  ];
+  categories.forEach(([name,covered])=>{
+    out+=`<div class="fact"><b>${name}</b>${covered?'Evidence available':'No evidence generated'}</div>`;
+  });
+  out+='</div><div style="margin-top:16px">';
+  state.selected.forEach(k=>out+=`<div class="summaryItem"><strong>${studies[k].title}</strong> — ${studies[k].cost} credit${studies[k].cost===1?'':'s'}</div>`);
+  out+=`<div class="summaryItem"><strong>Credits unused:</strong> ${state.credits}</div></div>`;
+  document.getElementById('evidenceSummary').innerHTML=out;
+}
+function chooseDecision(d){
+  state.decision=d;
+  document.getElementById('chosenDecision').textContent='Your decision: '+d;
+  document.getElementById('reflection').classList.remove('hidden');
+  document.getElementById('reflection').scrollIntoView({behavior:'smooth'});
+}
+function finish(){
+  if(!state.decision) return;
+  const q1=document.getElementById('q1').value.trim();
+  const q2=document.getElementById('q2').value.trim();
+  const q3=document.getElementById('q3').value.trim();
+  show('final'); progress(100,'Complete');
+  document.getElementById('finalDecisionText').innerHTML=`Your team selected <strong>${state.decision}</strong>. The aim is not to choose GO. The quality of your decision depends on whether your conclusion is supported by the evidence you chose to generate.`;
+  document.getElementById('finalSummary').innerHTML=`
+    <div class="summaryItem"><strong>Studies performed:</strong> ${state.selected.map(k=>studies[k].title).join(', ')||'None'}</div>
+    <div class="summaryItem"><strong>Credits unused:</strong> ${state.credits}</div>
+    <div class="summaryItem"><strong>Most influential findings:</strong><br>${escapeHtml(q1)||'<em>Not entered</em>'}</div>
+    <div class="summaryItem"><strong>Largest remaining uncertainty:</strong><br>${escapeHtml(q2)||'<em>Not entered</em>'}</div>
+    <div class="summaryItem"><strong>What you would do next:</strong><br>${escapeHtml(q3)||'<em>Not entered</em>'}</div>`;
+}
+
+
+
+
+
+const MS_FORMS_PREFILL_TEMPLATE = "https://forms.cloud.microsoft/Pages/ResponsePage.aspx?id=I_FR8s7JjkSSdzS7KFkR2XLkVB75bylGn4LuSDaAGM5UQUNVMUlYRUg3SVpWUDhaMVNIOVNPRDJORS4u&r94a4cacda9814862b5ec9b5adb3bc2ed=PREFILL_SELECTION&r418b4c1a136b485fa79c535b0c28b5a3=PREFILL_STUDIES&rd5eef438b784412eb63ff00dc8398464=PREFILL_CREDITS&re62543c745ea4ad1beb66c03d5eb710f=PREFILL_INFLUENTIAL&r984a59d87bec4c45847d89dc832e6813=PREFILL_UNCERTAINTY&reb541498b424453ebfa63deafbe81b8a=PREFILL_NEXT&rdb936603453e4d81bc6b4fefce98fe49=PREFILL_GOOD&ra259fe2c7003466cbdf739ca421a9015=PREFILL_IMPROVE";
+
+const MS_PREFILL_TOKENS = {
+  decision: "PREFILL_SELECTION",
+  studies: "PREFILL_STUDIES",
+  credits: "PREFILL_CREDITS",
+  influential: "PREFILL_INFLUENTIAL",
+  uncertainty: "PREFILL_UNCERTAINTY",
+  next: "PREFILL_NEXT",
+  good: "PREFILL_GOOD",
+  improve: "PREFILL_IMPROVE"
+};
+
+function replacePrefillToken(url, token, value){
+  const encodedToken=encodeURIComponent(token);
+  const encodedValue=encodeURIComponent(value || "");
+  return url
+    .split(token).join(encodedValue)
+    .split(encodedToken).join(encodedValue);
+}
+
+function buildMicrosoftFormsUrl(){
+  if(!MS_FORMS_PREFILL_TEMPLATE || !MS_FORMS_PREFILL_TEMPLATE.startsWith("https://forms.cloud.microsoft/")){
+    return null;
+  }
+
+  const q1=document.getElementById('q1').value.trim();
+  const q2=document.getElementById('q2').value.trim();
+  const q3=document.getElementById('q3').value.trim();
+  const good=document.getElementById('fbGood').value.trim();
+  const improve=document.getElementById('fbImprove').value.trim();
+
+  let url=MS_FORMS_PREFILL_TEMPLATE;
+  const values={
+    decision: state.decision || "Not selected",
+    studies: state.selected.map(k=>studies[k].title).join("; "),
+    credits: String(state.credits),
+    influential: q1,
+    uncertainty: q2,
+    next: q3,
+    good: good,
+    improve: improve
+  };
+
+  Object.keys(MS_PREFILL_TOKENS).forEach(key=>{
+    url=replacePrefillToken(url,MS_PREFILL_TOKENS[key],values[key]);
+  });
+  return url;
+}
+
+function openMicrosoftForm(){
+  const good=document.getElementById('fbGood').value.trim();
+  const improve=document.getElementById('fbImprove').value.trim();
+
+  document.getElementById('lectureFeedbackSummary').innerHTML=`
+    <div class="summaryItem"><strong>What worked well:</strong><br>${escapeHtml(good)||'<em>Not entered</em>'}</div>
+    <div class="summaryItem"><strong>What could be improved:</strong><br>${escapeHtml(improve)||'<em>Not entered</em>'}</div>`;
+
+  const success=document.getElementById('feedbackSaved');
+  const error=document.getElementById('feedbackError');
+  if(success) success.classList.add('hidden');
+  if(error) error.classList.add('hidden');
+
+  const url=buildMicrosoftFormsUrl();
+  if(!url){
+    if(error) error.classList.remove('hidden');
+    return;
+  }
+
+  window.open(url,'_blank','noopener');
+  if(success) success.classList.remove('hidden');
+}
+
+
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));
+}
+function resetSim(){
+  state={
+    credits:10,selected:[],decision:null,surpriseSeen:false,pending:{r1:[],r2:[],r3:[],r4:[]},
+    history:[{type:'Starting information',title:'Candidate dossier',body:'NBX-101 is a human IgG1 antibody that blocks XR-17. Discovery IC50 is 1.5 nM in a human reporter assay. The intended route is subcutaneous administration.'}]
+  };
+  renderCredits(); renderHistory();
+  document.querySelectorAll('[id$="result"]').forEach(e=>e.innerHTML='');
+  document.querySelectorAll('[id$="continue"]').forEach(e=>e.classList.add('hidden'));
+  ['r1confirm','r2confirm','r3confirm','r4confirm'].forEach(id=>{
+    const b=document.getElementById(id); if(b){b.classList.remove('hidden');b.disabled=true;b.textContent='Confirm selected studies';}
+  });
+  ['r1selectionSummary','r2selectionSummary','r3selectionSummary','r4selectionSummary'].forEach(id=>{
+    const el=document.getElementById(id); if(el)el.innerHTML='No studies selected yet. Unused credits carry forward.';
+  });
+  document.getElementById('reflection').classList.add('hidden');
+  document.getElementById('q1').value='';document.getElementById('q2').value='';document.getElementById('q3').value='';
+  const fbGood=document.getElementById('fbGood'); if(fbGood) fbGood.value='';
+  const fbImprove=document.getElementById('fbImprove'); if(fbImprove) fbImprove.value='';
+  const fbSummary=document.getElementById('lectureFeedbackSummary'); if(fbSummary) fbSummary.innerHTML='';
+  const fbSaved=document.getElementById('feedbackSaved'); if(fbSaved) fbSaved.classList.add('hidden');
+  const fbError=document.getElementById('feedbackError'); if(fbError) fbError.classList.add('hidden');
+  const submitAllBtn=document.getElementById('submitAllBtn'); if(submitAllBtn){submitAllBtn.disabled=false;submitAllBtn.textContent='Open Microsoft Form to submit';}
+  closeReview();show('intro');progress(0,'Candidate dossier');
+}
+renderCredits(); renderHistory();
+
+</script>
+</body></html>
